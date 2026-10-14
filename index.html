@@ -340,14 +340,14 @@ $("gateForm").addEventListener("submit", async e=>{
   e.preventDefault();
   const k = $("gatePass").value.trim();
   if(!k) return;
-  $("gateBtn").disabled=true; $("gateErr").hidden=true;
+  $("gateBtn").disabled=true; $("gateBtn").textContent="Kontrol ediliyor…"; $("gateErr").hidden=true;
   try{
     const j = await apiList(k);
     if(!j.ok){ $("gateErr").textContent = j.error==="sifre" ? "Şifre yanlış. Tekrar deneyin." : "Sistem henüz hazır değil."; $("gateErr").hidden=false; return; }
     key=k; setKey(k); rows=j.items; sortRows(); lastSync=Date.now();
     $("gate").hidden=true; $("app").hidden=false; render(); showSync();
   }catch(err){ $("gateErr").textContent="Bağlantı kurulamadı. İnterneti kontrol edin."; $("gateErr").hidden=false; }
-  finally{ $("gateBtn").disabled=false; }
+  finally{ $("gateBtn").disabled=false; $("gateBtn").textContent="Giriş"; }
 });
 
 // ---------- static UI ----------
