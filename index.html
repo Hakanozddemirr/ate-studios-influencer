@@ -175,7 +175,8 @@ body{margin:0;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-a
     <small>Ate Studios</small>
     <h1>Influencer Takip</h1>
     <p>Ekip şifresini girin. Bu cihaz şifreyi hatırlar, bir daha sorulmaz.</p>
-    <input id="gatePass" type="password" autocomplete="current-password" placeholder="Ekip şifresi" aria-label="Ekip şifresi">
+    <input id="gatePass" type="password" autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="Ekip şifresi" aria-label="Ekip şifresi">
+    <label class="chk" for="gateShow"><input type="checkbox" id="gateShow"> Şifreyi göster</label>
     <div class="err" id="gateErr" hidden></div>
     <button class="btn primary" type="submit" id="gateBtn">Giriş</button>
   </form>
@@ -338,11 +339,13 @@ function logout(msg){
 }
 $("gateForm").addEventListener("submit", async e=>{
   e.preventDefault();
-  const k = $("gatePass").value.trim();
+  let k = $("gatePass").value.trim();
   if(!k) return;
   $("gateBtn").disabled=true; $("gateBtn").textContent="Kontrol ediliyor…"; $("gateErr").hidden=true;
   try{
-    const j = await apiList(k);
+    let j = await apiList(k);
+    // Telefon klavyesi ilk harfi büyük yazarsa küçük harfle bir kez daha dene
+    if(!j.ok && j.error==="sifre" && k!==k.toLocaleLowerCase("tr")){ const k2=k.toLocaleLowerCase("tr"); const j2=await apiList(k2); if(j2.ok){ j=j2; k=k2; } }
     if(!j.ok){ $("gateErr").textContent = j.error==="sifre" ? "Şifre yanlış. Tekrar deneyin." : "Sistem henüz hazır değil."; $("gateErr").hidden=false; return; }
     key=k; setKey(k); rows=j.items; sortRows(); lastSync=Date.now();
     $("gate").hidden=true; $("app").hidden=false; render(); showSync();
@@ -350,6 +353,7 @@ $("gateForm").addEventListener("submit", async e=>{
   finally{ $("gateBtn").disabled=false; $("gateBtn").textContent="Giriş"; }
 });
 
+$("gateShow").addEventListener("change",e=>{ $("gatePass").type = e.target.checked ? "text" : "password"; });
 // ---------- static UI ----------
 function fillSelect(sel, list, allLabel){ sel.innerHTML=""; sel.append(new Option(allLabel,"")); list.forEach(o=>sel.append(new Option(o.v,o.v))); }
 fillSelect($("fKargo"), KARGO, "Tüm kargo durumları");
